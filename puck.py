@@ -1,124 +1,155 @@
 import pandas as pd
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, simpledialog, messagebox
 import datetime as dt
 
-
-#pip install pandas
-
-
-lista_tipos = ["Codigo","Nivel_de_emergência","Data_da_ocorrencia","Relato"]
-lista_codigo = []
+senha_admin = "mundosenai"
 
 
-def imprimir_relatorios():
-    for item in lista_codigo:
-        print(item)
-
-
-def inserir():
-    descroçao = entry_descrição.get()
-    selecionar = selecionar_urgencia.get()
-    relatorio = entry_relatorio.get()
-    data_criaçao = dt.datetime.now()
-    data_criaçao = data_criaçao.strftime("%d/%m/%y  %H:%M")
+def fazer_relatorio():
     
-    if descroçao=='m001' or descroçao=='m002' or descroçao=='m003'  or descroçao=='m004':
-        produto='mouse'
-    elif descroçao=='t001' or descroçao=='t002' or descroçao=='t003' or descroçao=='t004':
-        produto='teclado'
-    elif descroçao=='c001' or descroçao=='c002' or descroçao=='c003' or descroçao=='c004':
-        produto='cadeira'
-    else:
-        produto='codigo nao registrado no sistema'
+    def inserir():
+        descricao = entry_descrição.get()
+        urgencia = selecionar_urgencia.get()
+        relato = entry_relatorio.get("1.0", tk.END)
+        data_criacao = dt.datetime.now().strftime("%d/%m/%y %H:%M")
+
+        if descricao in ['m001', 'm002', 'm003', 'm004']:
+            produto = 'mouse'
+            preco = 25.70
+        elif descricao in ['t001', 't002', 't003', 't004']:
+            produto = 'teclado'
+            preco = 37.50
+        elif descricao in ['c001', 'c002', 'c003', 'c004']:
+            produto = 'cadeira'
+            preco = 175.35
+        else:
+            produto = 'codigo nao registrado no sistema'
+            preco = 0.00
+
+
+        tabela = {
+            'codigo': [descricao],
+            'produto': [produto],
+            'preço': [preco],
+            'Nivel de urgencia': [urgencia],
+            'Horario e Data da ocorrencia': [data_criacao],
+            'relato': [relato],
+        }
+
+        tabela_df = pd.DataFrame(tabela)
+
+
+        
+        tabela_df = pd.DataFrame(tabela )
+        tabela_df.to_excel('excelcopia.xlsx',index=False)
+        
+        tabela_df_velha= pd.read_excel('excelcopia.xlsx')
+        tabela_df_nova= pd.read_excel('excelPuck.xlsx')
+        
         
 
+        tabela_df_Unificada= pd.concat([tabela_df_nova,tabela_df_velha])
+        tabela_df_Unificada.to_excel('excelPuck.xlsx',index=False)
 
-    if descroçao=='m001' or descroçao=='m002' or descroçao=='m003'  or descroçao=='m004':
-        preço=25.70
-    elif descroçao=='t001' or descroçao=='t002' or descroçao=='t003' or descroçao=='t004':
-        preço= 37.50
-    elif descroçao=='c001' or descroçao=='c002' or descroçao=='c003' or descroçao=='c004':
-        preço= 175.35
-    else:
-        preço='codigo nao registrado no sistema'
+        messagebox.showinfo("Sucesso", "Dados inseridos com sucesso!")
+
+    
+    relatorio_janela = tk.Toplevel(janela)
+    relatorio_janela.title("Relatório PUCK")
+    relatorio_janela.iconbitmap('IconePuck.ico')
+
+    fonte_titulo = ("Bodoni FLF", 40, "bold")
+    fonte = ("Bodoni FLF", 16, "bold")
+    
+    label_Puck = tk.Label(relatorio_janela, text="SGBD PUCK", font=fonte_titulo, fg="purple")
+    label_Puck.grid(row=0, column=0, padx=20, pady=20, columnspan=4, sticky='nsew')
+
+    label_tipo_codigo = tk.Label(relatorio_janela, text='Código:', font=fonte)
+    label_tipo_codigo.grid(row=1, column=0, padx=20, pady=10, sticky='w')
+    
+    entry_descrição = tk.Entry(relatorio_janela, font=fonte)
+    entry_descrição.grid(row=1, column=1, padx=20, pady=10, sticky='ew', columnspan=3)
+
+    label_tipo_urgencia = tk.Label(relatorio_janela, text='Nível de urgência:', font=fonte)
+    label_tipo_urgencia.grid(row=2, column=0, padx=20, pady=10, sticky='w')
+
+    selecionar_urgencia = ttk.Combobox(relatorio_janela, values=['Urgente', 'Não urgente'], font=fonte)
+    selecionar_urgencia.grid(row=2, column=1, padx=20, pady=10, sticky='ew', columnspan=3)
+
+    label_tipo_Relatorio = tk.Label(relatorio_janela, text='Relatório:', font=fonte)
+    label_tipo_Relatorio.grid(row=3, column=0, padx=20, pady=10, sticky='w')
+
+    entry_relatorio = tk.Text(relatorio_janela, wrap=tk.WORD, font=fonte, height=10, width=40)
+    entry_relatorio.grid(row=3, column=1, padx=20, pady=10, sticky='nsew', columnspan=3, rowspan=2)
+
+    botao_enviar = tk.Button(relatorio_janela, text='Enviar relatório', command=inserir, font=("Bodoni FLF", 20, "bold"))
+    botao_enviar.grid(row=5, column=0, padx=20, pady=20, columnspan=4, sticky='nsew')
+
+    for i in range(6):
+        relatorio_janela.grid_rowconfigure(i, weight=1)
+    for i in range(4):
+        relatorio_janela.grid_columnconfigure(i, weight=1)
+
+excel_filename = 'excelPuck.xlsx'
+
+def administracao():
+    senha = simpledialog.askstring("Senha de Administração", "Digite a senha de administração:")
+    
+    
+
+    if senha == senha_admin:
         
-    
-    tabela= { 'codigo': [descroçao],
-         'produto': [produto],
-         'preço': [preço],     
-         'Nivel de urgencia': [selecionar],
-         'Horario e Data da ocorrencia': [data_criaçao],
-         'relato': [relatorio],
-    }
-    
-    
-    lista_codigo.append((descroçao,selecionar,relatorio,data_criaçao))
-
-
-    
-    tabela_df = pd.DataFrame(tabela )
-    tabela_df.to_excel('excelcopia.xlsx',index=False)
-      
-    tabela_df_velha= pd.read_excel('excelcopia.xlsx')
-    tabela_df_nova= pd.read_excel('excelPuck.xlsx')
-    
+        
+        administracao_janela = tk.Toplevel(janela)
+        administracao_janela.title("Tela de Administração")
+        administracao_janela.iconbitmap('IconePuck.ico')
        
+        # Lê os dados de um arquivo Excel (excel_filename) e carrega em um DataFrame (df).
+        df = pd.read_excel(excel_filename)
 
+        # Cria um widget Treeview na janela de administração.
+        treeview = ttk.Treeview(administracao_janela)
+        treeview["columns"] = list(df.columns)
 
-    tabela_df_Unificada= pd.concat([tabela_df_nova,tabela_df_velha])
-    tabela_df_Unificada.to_excel('excelPuck.xlsx',index=False)
-        
-    display(tabela_df_Unificada)  
-    
-    
-    
-    
-    
-tabela_df=inserir
+        # Configura as colunas do Treeview com os nomes das colunas do DataFrame.
+        for col in df.columns:
+            treeview.heading(col, text=col)
+            treeview.column(col, width=100)
 
+        # Insere os dados do DataFrame no Treeview.
+        for _, row in df.iterrows():
+            values = list(row)
+            treeview.insert("", "end", values=values)
+
+        # Faz com que o Treeview preencha todo o espaço disponível na janela.
+        treeview.pack(fill="both", expand=True)
+
+        # Mantém a janela aberta.
+        administracao_janela.mainloop()
+
+    else:
+        tk.messagebox.showerror("Acesso Negado", "Senha incorreta!")
 
 janela = tk.Tk()
+largura_janela = 400
+altura_janela = 460
+janela.geometry(f"{largura_janela}x{altura_janela}")
+janela.title("Puck")
+janela.iconbitmap('IconePuck.ico')  # Defina o ícone para a janela principal
 
 
-janela.title('PUCK')
-
-
-
-label_Puck = tk.Label(text="PUCK")
-label_Puck.grid(row=1,column=0, padx=10, pady= 10, sticky='nswe', columnspan=4)
-
-
-
-label_tipo_codigo = tk.Label(text='⚫codigo:')
-label_tipo_codigo.grid(row=2,column=1, padx=1, pady= 1, sticky='nswe', columnspan=1)
-entry_descrição = tk.Entry()
-entry_descrição.grid(row=3, column=2,padx=1,pady=1,sticky='nsew', columnspan=2)
-
-
-
-label_tipo_urgencia = tk.Label(text='⚫Nível de urgencia:')
-label_tipo_urgencia.grid(row=4,column=1, padx=1, pady= 1, sticky='nswe', columnspan=2)
-selecionar_urgencia = ttk.Combobox(values='urgente' 'Não urgente')
-selecionar_urgencia.grid(row=5, column=2,padx=1,pady=1,sticky='nsew', columnspan=2)
-
-
-
-label_tipo_Relatorio = tk.Label(text='⚫Relatório:')
-label_tipo_Relatorio.grid(row=6,column=1, padx=1, pady= 1, sticky='nswe', columnspan=1)
-entry_relatorio = tk.Entry()
-entry_relatorio.grid(row=7, column=1,padx=1,pady=1,sticky='nsew', columnspan=4,rowspan=1)
-
-
-butao_enviar = tk.Button(text='enviar relatorio', command=inserir)
-butao_enviar.grid(row=9, column=1,padx=1,pady=1,sticky='nsew', columnspan=4,)
+botao_relatorio = tk.Button(janela, text="Fazer Relatório", command=fazer_relatorio, padx=50, pady=20, font=("Bodoni FLF", 20, "bold"))
+botao_administracao = tk.Button(janela, text="Administração", command=administracao, padx=50, pady=20, font=("Bodoni FLF", 20, "bold"))
 
 
 
 
+fonte_titulo = ("Bodoni FLF", 40, "bold")
+label_Puck = tk.Label(janela, text="SGBD PUCK", font=fonte_titulo, fg="purple")
+label_Puck.pack(padx=20, pady=20)
 
-
-
+botao_relatorio.pack(pady=25)
+botao_administracao.pack()
 
 janela.mainloop()
-
